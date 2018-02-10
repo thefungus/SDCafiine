@@ -22,6 +22,60 @@
 
 #define TEXT_SEL(x, text1, text2)           ((x) ? (text1) : (text2))
 
+enum PadButton {
+	PAD_BTN_A,
+	PAD_BTN_UP,
+	PAD_BTN_DOWN,
+	PAD_BTN_L,
+	PAD_BTN_R
+};
+
+VPADData vpad;
+s32 vpadError;
+
+void initControllers() {
+
+}
+
+void deinitControllers() {
+
+}
+
+void refreshControllers() {
+	VPADRead(0, &vpad, 1, &vpadError);
+}
+
+bool isButtonPressed(enum PadButton btn) {
+	if(vpadError == 0) {
+		switch(btn) {
+			case PAD_BTN_A:
+			if(vpad.btns_d & VPAD_BUTTON_A) return true;
+			break;
+
+			case PAD_BTN_UP:
+			if(vpad.btns_d & VPAD_BUTTON_UP) return true;
+			break;
+
+			case PAD_BTN_DOWN:
+			if(vpad.btns_d & VPAD_BUTTON_DOWN) return true;
+			break;
+
+			case PAD_BTN_L:
+			if(vpad.btns_d & VPAD_BUTTON_L) return true;
+			break;
+
+			case PAD_BTN_R:
+			if(vpad.btns_d & VPAD_BUTTON_R) return true;
+			break;
+
+			default:
+			break;
+		}
+	}
+
+	return false;
+}
+
 void HandleMultiModPacks(u64 titleID/*,bool showMenu*/) {
 	gModFolder[0] = 0;
 
@@ -85,9 +139,6 @@ void HandleMultiModPacks(u64 titleID/*,bool showMenu*/) {
     int initScreen = 1;
     int x_offset = -2;
 
-    VPADData vpad;
-    s32 vpadError;
-
     OSScreenInit();
     u32 screen_buf0_size = OSScreenGetBufferSizeEx(0);
     u32 screen_buf1_size = OSScreenGetBufferSizeEx(1);
@@ -113,30 +164,27 @@ void HandleMultiModPacks(u64 titleID/*,bool showMenu*/) {
 
     while(1){
 
-        vpadError = -1;
-        VPADRead(0, &vpad, 1, &vpadError);
+        refreshControllers();
 
-        if(vpadError == 0) {
-            if(vpad.btns_d & VPAD_BUTTON_A) {
-                wantToExit = 1;
-                initScreen = 1;
-            } else if(vpad.btns_d & VPAD_BUTTON_DOWN) {
-                selected++;
-                initScreen = 1;
-            } else if(vpad.btns_d & VPAD_BUTTON_UP) {
-                selected--;
-                initScreen = 1;
-            } else if(vpad.btns_d & VPAD_BUTTON_L) {
-                selected -= per_page;
-                initScreen = 1;
-            } else if(vpad.btns_d & VPAD_BUTTON_R) {
-                selected += per_page;
-                initScreen = 1;
-            }
-            if(selected < 0) selected = 0;
-            if(selected >= modPackListSize) selected = modPackListSize-1;
-            page = selected / per_page;
+        if(isButtonPressed(PAD_BTN_A)) {
+            wantToExit = 1;
+            initScreen = 1;
+        } else if(isButtonPressed(PAD_BTN_DOWN)) {
+            selected++;
+            initScreen = 1;
+        } else if(isButtonPressed(PAD_BTN_UP)) {
+            selected--;
+            initScreen = 1;
+        } else if(isButtonPressed(PAD_BTN_L)) {
+            selected -= per_page;
+            initScreen = 1;
+        } else if(isButtonPressed(PAD_BTN_R)) {
+            selected += per_page;
+            initScreen = 1;
         }
+        if(selected < 0) selected = 0;
+        if(selected >= modPackListSize) selected = modPackListSize-1;
+        page = selected / per_page;
 
         if(initScreen) {
             OSScreenClearBufferEx(0, 0);
