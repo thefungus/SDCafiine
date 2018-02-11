@@ -13,6 +13,7 @@
 
 #include <dynamic_libs/os_functions.h>
 #include <dynamic_libs/vpad_functions.h>
+#include <dynamic_libs/padscore_functions.h>
 #include <utils/logger.h>
 #include <utils/StringTools.h>
 #include <fs/FSUtils.h>
@@ -33,16 +34,41 @@ enum PadButton {
 VPADData vpad;
 s32 vpadError;
 
-void initControllers() {
+KPADData pads[4];
+s32 padErrors[4];
+u32 padTypes[4];
 
+void initControllers() {
+	// GamePad does not need to be initialized
+	// VPADInit();
+
+	KPADInit();
 }
 
 void deinitControllers() {
+	// GamePad does not need to be deinitialized
+	// VPADShutdown();
 
+	KPADInit();
+
+	// Clear buffers to prevent future SDCafiine launches from reading old data
+	memset(&vpad, 0, sizeof(VPADData));
+	vpadError = 0;
+
+	memset(pads, 0, sizeof(KPADData) * 4);
+	memset(padErrors, 0, sizeof(s32) * 4);
+	memset(padTypes, 0, sizeof(u32) * 4);
 }
 
 void refreshControllers() {
 	VPADRead(0, &vpad, 1, &vpadError);
+
+	for(int i = 0; i < 4; i++) {
+		padErrors[i] = WPADProbe(i, &padTypes[i]);
+		if(padErrors[i] == 0) {
+			KPADRead(i, &pads[i], 1);
+		}
+	}
 }
 
 bool isButtonPressed(enum PadButton btn) {
@@ -70,6 +96,62 @@ bool isButtonPressed(enum PadButton btn) {
 
 			default:
 			break;
+		}
+	}
+
+	for(int i = 0; i < 4; i++) {
+		if(padErrors[i] == 0) {
+			if(pads[i].device_type <= 1) {
+				switch(btn) {
+					case PAD_BTN_A:
+					if(pads[i].btns_d & WPAD_BUTTON_A) return true;
+					break;
+
+					case PAD_BTN_UP:
+					if(pads[i].btns_d & WPAD_BUTTON_UP) return true;
+					break;
+
+					case PAD_BTN_DOWN:
+					if(pads[i].btns_d & WPAD_BUTTON_DOWN) return true;
+					break;
+
+					case PAD_BTN_L:
+					if(pads[i].btns_d & WPAD_BUTTON_1) return true;
+					break;
+
+					case PAD_BTN_R:
+					if(pads[i].btns_d & WPAD_BUTTON_2) return true;
+					break;
+
+					default:
+					break;
+				}
+			}else{
+				switch(btn) {
+					case PAD_BTN_A:
+					if(pads[i].classic.btns_d & WPAD_CLASSIC_BUTTON_A) return true;
+					break;
+
+					case PAD_BTN_UP:
+					if(pads[i].classic.btns_d & WPAD_CLASSIC_BUTTON_UP) return true;
+					break;
+
+					case PAD_BTN_DOWN:
+					if(pads[i].classic.btns_d & WPAD_CLASSIC_BUTTON_DOWN) return true;
+					break;
+
+					case PAD_BTN_L:
+					if(pads[i].classic.btns_d & WPAD_CLASSIC_BUTTON_L) return true;
+					break;
+
+					case PAD_BTN_R:
+					if(pads[i].classic.btns_d & WPAD_CLASSIC_BUTTON_R) return true;
+					break;
+
+					default:
+					break;
+				}
+			}
 		}
 	}
 
@@ -138,6 +220,8 @@ void HandleMultiModPacks(u64 titleID/*,bool showMenu*/) {
     int selected = 0;
     int initScreen = 1;
     int x_offset = -2;
+
+	initControllers();
 
     OSScreenInit();
     u32 screen_buf0_size = OSScreenGetBufferSizeEx(0);
@@ -232,6 +316,8 @@ void HandleMultiModPacks(u64 titleID/*,bool showMenu*/) {
     // Flip buffers
     OSScreenFlipBuffersEx(0);
     OSScreenFlipBuffersEx(1);
+
+	deinitControllers();
 
     free(screenbuffers);
 

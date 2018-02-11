@@ -10,6 +10,7 @@
 #include <iosuhax.h>
 #include <dynamic_libs/os_functions.h>
 #include <dynamic_libs/vpad_functions.h>
+#include <dynamic_libs/padscore_functions.h>
 #include <dynamic_libs/fs_functions.h>
 #include <dynamic_libs/socket_functions.h>
 #include <dynamic_libs/sys_functions.h>
@@ -53,6 +54,7 @@ extern "C" int Menu_Main(void){
     InitProcUIFunctionPointers(); // For SYSLaunchMenu()
     InitFSFunctionPointers();
     InitVPadFunctionPointers();
+    InitPadScoreFunctionPointers();
 
     log_init();
 
