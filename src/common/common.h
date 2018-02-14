@@ -17,6 +17,9 @@ extern "C" {
 #define WIIU_PATH                   "/wiiu"
 #define IP_TXT                      "ip.txt"
 
+#define SDCAFIINE_APP_PATH          SD_PATH WIIU_PATH "/apps/sdcafiine"
+#define AUTOBOOT_PATH               SDCAFIINE_APP_PATH "/autoboot.txt"
+
 #define CONTENT_FOLDER              "content"
 #define AOC_FOLDER                  "aoc"
 #define META_FOLDER                 "meta"
@@ -56,4 +59,3 @@ extern "C" {
 #endif
 
 #endif    /* COMMON_H */
-

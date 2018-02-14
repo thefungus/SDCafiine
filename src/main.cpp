@@ -30,6 +30,7 @@
 #include "myutils/mocha.h"
 #include "myutils/libfat.h"
 #include "myutils/libntfs.h"
+#include "autoboot.h"
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -94,7 +95,16 @@ extern "C" int Menu_Main(void){
     if(isFirstBoot){ // First boot back to SysMenu
         DEBUG_FUNCTION_LINE("Loading the System Menu\n");
         isFirstBoot = 0;
-        SYSLaunchMenu();
+
+        uint64_t titleID = getAutobootTitleID();
+
+        if (titleID && titleID != (uint64_t)1) {
+            SYSLaunchTitle(titleID);
+            HandleMultiModPacks(titleID);
+        } else {
+            SYSLaunchMenu();
+        }
+
         return EXIT_RELAUNCH_ON_LOAD;
     }
 
