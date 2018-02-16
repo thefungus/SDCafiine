@@ -18,7 +18,7 @@ extern "C" {
 #define IP_TXT                      "ip.txt"
 
 #define SDCAFIINE_APP_PATH          SD_PATH WIIU_PATH "/apps/sdcafiine"
-#define AUTOBOOT_PATH               SDCAFIINE_APP_PATH "/autoboot.txt"
+#define SDCAFIINE_AUTOBOOT_PATH     SDCAFIINE_APP_PATH "/autoboot.txt"
 
 #define CONTENT_FOLDER              "content"
 #define AOC_FOLDER                  "aoc"

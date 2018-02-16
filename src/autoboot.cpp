@@ -104,7 +104,7 @@ uint64_t readTitleFile() {
     std::string buf;
     char *endptr;
 
-    std::string filepath = AUTOBOOT_PATH;
+    std::string filepath = SDCAFIINE_AUTOBOOT_PATH;
 
     CFile file(filepath, CFile::ReadOnly);
     if (!file.isOpen()) {
