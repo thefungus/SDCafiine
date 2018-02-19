@@ -49,7 +49,12 @@ void deinitControllers() {
 	// GamePad does not need to be deinitialized
 	// VPADShutdown();
 
-	KPADInit();
+	for (int i = 0; i < 4; i++) {
+		padErrors[i] = WPADProbe(i, &padTypes[i]);
+		if (padErrors[i] == 0) {
+			WPADDisconnect(i);
+		}
+	}
 
 	// Clear buffers to prevent future SDCafiine launches from reading old data
 	memset(&vpad, 0, sizeof(VPADData));
